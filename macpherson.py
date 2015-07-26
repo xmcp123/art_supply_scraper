@@ -18,7 +18,7 @@ class MacPhersonProductList:
         Load each result page and create a dump of the products available
         :param search_result: result from macphersonsearch
         """
-        tp = ThreadPool(20)
+        tp = ThreadPool(self.max_threads)
         for entry in search_result:
             tp.add_task(self.add_product,search_result = entry)
             print "Added ",entry
@@ -72,14 +72,22 @@ class MacPhersonProductList:
                 if 'amed' in entry:
                     try:
                         product_code_regex = '''<td valign="top" class="searchResultLead borderLeft borderRight amed"><div align="center">(.*?)</div>'''
-                        product_code = re.findall(product_code_regex,entry)[0]
-                        #print "PRODUCT CODE:",product_code
+                        product_code = re.findall(product_code_regex,entry)
+                        if not product_code:
+                            product_code=re.findall(">([^<]*?)<\/a><\/td>",entry)
+                        product_code = product_code[0]
                         product_name_regex = '''<td valign="top" class="searchResultLead borderRight amed"><div align="center">(.*?)<\/div><\/td>'''
-                        product_name = re.findall(product_name_regex,entry)[0]
-                        #print "PRODUCT NAME:",product_name
+                        product_name = re.findall(product_name_regex,entry)
+                        if not product_name:
+                            product_name=re.findall("<td class=\"amed greenBorderBott borderRight\">([^<]*?)<\/td>",entry)
+                        product_name = product_name[0]
+
                         price_regex = '''<div class="listPrice">(.*?)<\/div>'''
-                        price= re.findall(price_regex,entry)[0].replace(" ","")
-                        #print "PRICE:",price
+                        price = re.findall(price_regex,entry)
+                        if not price:
+                            price = re.findall("<td [^>]*? class=\"amed greenBorderBott borderRight\">\$(.*?)<\/td>",entry)
+
+                        price = price[0].replace(" ","")
                         product_obj = {'url':search_result[0],'parent_title':search_result[1],'title':product_name,'price':price,'product_code':product_code}
                         for geo in self.get_availability(product_code):
                             product_obj['location'] = geo['location']
@@ -89,8 +97,10 @@ class MacPhersonProductList:
                             print "Product Object:",product_obj
                             self.product_list.append(copy.copy(product_obj))
                     except:
-                        print "Exception locating result ",search_result,
-                        continue
+                        print "Exception locating result ",len(rows)
+                        print "ENTRY:",entry
+                        print len(rows)
+                        raise
         except:
             raise
 
