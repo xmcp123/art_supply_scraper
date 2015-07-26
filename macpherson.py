@@ -18,16 +18,17 @@ class MacPhersonProductList:
         Load each result page and create a dump of the products available
         :param search_result: result from macphersonsearch
         """
+        self.product_list = []
         tp = ThreadPool(self.max_threads)
         for entry in search_result:
             tp.add_task(self.add_product,search_result = entry)
             print "Added ",entry
         tp.finalize()
-        self.product_list = []
-        print "Requesting Results"
         tp.wait_completion()
+        print "Requesting Results"
+        #tp.wait_completion()
     def get_availability(self,code):
-        data = requests.get("http://www.macphersonart.com/cgi-bin/maclive/olc/inv-balance.w?item="+code+"&sponsor=200000&nocache=52187")
+        data = requests.get("http://www.macphersonart.com/cgi-bin/maclive/olc/inv-balance.w?item="+code+"&sponsor=200000&nocache=52187",timeout=5)
         data = data.content.replace("\n","").replace("\r","")
         table_regex = '''<table width="60%" border="0" cellspacing="0" cellpadding="5">(.*?)<\/table>'''
         table = re.findall(table_regex,data)
@@ -64,7 +65,7 @@ class MacPhersonProductList:
     def add_product(self,search_result):
         print "Executing ",search_result
         try:
-            data = requests.get(search_result[0])
+            data = requests.get(search_result[0],timeout=5)
             data = data.content.replace("\n","").replace("\r","")
             #print "RESULT FROM ",search_result[0],"\t",re.findall("<table class=\"mainTableWidth\"[^>]*?>(.*?)<\/table>",data)[0]
             rows = re.findall("<tr(.*?)<\/tr>",data)
@@ -98,6 +99,7 @@ class MacPhersonProductList:
                             product_obj['percent_of_total'] = geo['percent']
                             print "Product Object:",product_obj
                             self.product_list.append(copy.copy(product_obj))
+                            print "Current list size: ",len(self.product_list)
                     except:
                         print "Exception locating result ",len(rows)
                         print "ENTRY:",entry
