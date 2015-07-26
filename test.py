@@ -8,4 +8,4 @@ d=dummy()
 mp = MacPhersonProductList(d)
 
 mp.add_product((
-    'http://www.macphersonart.com/cgi-bin/maclive/olc/drill-down3.w?parent=147492&secnav=no&type=subtitle&sponsor=200000&nocache=59605','test'))
+    'http://www.macphersonart.com/cgi-bin/maclive/olc/drill-down3.w?asstMode=yes&vendor=ADV00068&brand=ADB00077&product=PO1CV160&sponsor=200000&nocache=61469','test'))
