@@ -8,7 +8,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--search', help='Your keyterm to search for',
                         default='markers')
     parser.add_argument('-max', '--max', help='Maximum number of results',
-                        default=30)
+                        default=30,type=int)
     parser.add_argument('-o', '--output', help='Output csv file',
                         default='/tmp/out.csv')
     args = parser.parse_args()

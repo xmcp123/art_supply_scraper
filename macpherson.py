@@ -123,6 +123,10 @@ class MacPhersonSearch:
         response = self.session.get(u)
         self.results = self.extract_results(response.content)
         for i in range(2,100):
+            if len(self.results)>self.max_results:
+                print "Reached maximum result count after ",i, "pages"
+                return
+
             u = base_u.format(i)
             try:
                 response = self.session.get(u)
@@ -130,21 +134,17 @@ class MacPhersonSearch:
 
                 for result in new_results:
                     self.results.append(result)
+                print "Currently has ",len(self.results)," entries"," out of a max of ",self.max_results
 
                 if len(new_results) == 0:
                     print "Got empty page, aborting search"
-                    break
+                    return
             except:
                 print "Exception requesting page #",i
-            if len(self.results)>self.max_results and self.max_results>0:
-                print "Reached maximum result count after ",i, "pages"
-                break
-
 
     def extract_results(self,text):
         r = '''<a class="productLink" href="([^"]*?)">(.*?)</a>'''
         ret = []
         for result in re.findall(r, text):
             ret.append(result)
-        print "Got ",len(ret)," results"
         return ret
