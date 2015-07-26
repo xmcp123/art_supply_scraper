@@ -75,6 +75,8 @@ class MacPhersonProductList:
                         product_code = re.findall(product_code_regex,entry)
                         if not product_code:
                             product_code=re.findall(">([^<]*?)<\/a><\/td>",entry)
+                            if not product_code:
+                                product_code = re.findall('''class="amed greenBorderBott borderRight">(.*?)<\/td>''',entry)
                         product_code = product_code[0]
                         product_name_regex = '''<td valign="top" class="searchResultLead borderRight amed"><div align="center">(.*?)<\/div><\/td>'''
                         product_name = re.findall(product_name_regex,entry)
