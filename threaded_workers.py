@@ -21,7 +21,7 @@ class Worker(Thread):
             try:
                 func(*args, **kargs)
             except:
-                raise
+                pass
             finally:
                 self.tasks.task_done()
 
